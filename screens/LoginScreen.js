@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native'
+import { StyleSheet, View, ScrollView, Image } from 'react-native'
 import { CheckBox, Input, Button, Icon } from 'react-native-elements';
 import * as SecureStore from 'expo-secure-store';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import * as ImagePicker from 'expo-image-picker';
+import { baseUrl } from '../shared/baseUrl';
+import logo from '../assets/images/logo.png';
 
 const LoginTab = ({ navigation }) => {
     const [username, setUsername] = useState('');
@@ -27,6 +30,7 @@ const LoginTab = ({ navigation }) => {
             );
         }
     };
+
 
     useEffect(() => {
         SecureStore.getItemAsync('userinfo').then((userdata) => {
@@ -107,6 +111,7 @@ const RegisterTab = () => {
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [remember, setRemember] = useState(false);
+    const [imageUrl, setImageUrl] = useState(baseUrl + 'images/logo.png');
 
     const handleRegister = () => {
         const userInfo = {
@@ -135,9 +140,32 @@ const RegisterTab = () => {
         }
     };
 
+    const getImageFromCamera = async () => {
+        const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
+
+        const capturedImage = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            aspect: [1, 1]
+        });
+
+        if (!capturedImage.cancelled) {
+            console.log(capturedImage);
+            setImageUrl(capturedImage.uri);
+        }
+    }
+
+
     return (
         <ScrollView>
             <View style={styles.container}>
+                <View style={styles.imageContainer}>
+                    <Image
+                        source={{ uri: imageUrl }}
+                        loadingIndicatorSource={logo}
+                        style={styles.image}
+                    />
+                    <Button title='Camera' onPress={getImageFromCamera} />
+                </View>
                 <Input
                     placeholder='Username'
                     leftIcon={{ type: 'font-awesome', name: 'user-o' }}
@@ -156,7 +184,7 @@ const RegisterTab = () => {
                 />
                 <Input
                     placeholder='First Name'
-                    leftIcon={{ type: 'font-awesome', name: 'user-0' }}
+                    leftIcon={{ type: 'font-awesome', name: 'user-o' }}
                     onChangeText={(text) => setFirstName(text)}
                     value={firstName}
                     containerStyle={styles.formInput}
@@ -201,22 +229,7 @@ const RegisterTab = () => {
                         buttonStyle={{ backgroundColor: '#5637DD' }}
                     />
                 </View>
-                <View style={styles.formButton}>
-                    <Button
-                        onPress={() => navigation.navigate('Register')}
-                        title='Register'
-                        type='clear'
-                        icon={
-                            <Icon
-                                name='user-plus'
-                                type='font-awesome'
-                                color='blue'
-                                iconStyle={{ marginRight: 10 }}
-                            />
-                        }
-                        titleStyle={{ color: '#5637DD' }}
-                    />
-                </View>
+
             </View>
         </ScrollView>
     );
@@ -288,6 +301,17 @@ const styles = StyleSheet.create({
     formButton: {
         marginVertical: 20,
         marginHorizontal: 40,
+    },
+    imageContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-evenly',
+        margin: 10
+    },
+    image: {
+        width: 60,
+        height: 60
     }
 });
 
