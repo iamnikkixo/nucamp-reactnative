@@ -4,6 +4,7 @@ import { CheckBox, Input, Button, Icon } from 'react-native-elements';
 import * as SecureStore from 'expo-secure-store';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { baseUrl } from '../shared/baseUrl';
 import logo from '../assets/images/logo.png';
 
@@ -150,10 +151,37 @@ const RegisterTab = () => {
 
         if (!capturedImage.cancelled) {
             console.log(capturedImage);
-            setImageUrl(capturedImage.uri);
+            processImage(capturedImage.uri);
         }
     }
 
+    const processImage = async (imgUri) => {
+        const processedImage = await ImageManipulator.manipulateAsync(
+            imgUri,
+            [{ resize: { height: 400, width: 400 } }],
+            { format: 'png' }
+        );
+
+        console.log(processedImage);
+        setImageUrl(processedImage.uri);
+    };
+
+    const getImageFromGallery = async () => {
+        const mediaLibraryPermissions = await ImagePicker.requestCameraPermissionsAsync();
+
+        const capturedImage = await ImagePicker.launchImageLibraryAsync({
+            allowsEditing: true,
+            aspect: [1, 1]
+        });
+
+        console.log(capturedImage)
+
+        if (!capturedImage.cancelled) {
+            console.log(capturedImage);
+            setImageUrl(capturedImage.uri);
+        }
+
+    }
 
     return (
         <ScrollView>
@@ -165,6 +193,7 @@ const RegisterTab = () => {
                         style={styles.image}
                     />
                     <Button title='Camera' onPress={getImageFromCamera} />
+                    <Button title='Gallery' onPress={getImageFromGallery} />
                 </View>
                 <Input
                     placeholder='Username'
