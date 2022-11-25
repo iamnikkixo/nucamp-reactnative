@@ -6,7 +6,7 @@ import * as MailComposer from 'expo-mail-composer';
 const ContactScreen = () => {
     const sendMail = () => {
         MailComposer.composeAsync({
-            recipients: ['petsville@gmail.com',],
+            recipients: ['campsites@nucamp.co',],
             subject: 'Inquiry',
             body: 'To whom it may concern:'
         });
